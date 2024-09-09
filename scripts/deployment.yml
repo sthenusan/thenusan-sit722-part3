@@ -1,47 +1,44 @@
-# FastAPI App Deployment
+# bookapi App Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fastapi-app
+  name: bookapi-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: fastapi-app
+      app: bookapi-app
   template:
     metadata:
       labels:
-        app: fastapi-app
+        app: bookapi-app
     spec:
       containers:
-        - name: fastapi-app
-          image: book-apis:latest
-          imagePullPolicy: Never
+        - name: bookapi-app
+          image: part3.azurecr.io/book-apis:latest
+          imagePullPolicy: Always
           env:
             - name: PORT
               value: "8000"
             - name: DATABASE_URL
-              value: "your_database_url_here"
+              value: "postgresql://sit722_part3_m72t_user:p1BTozMBRIrpsdW7BBn8vYNVtlmTbkSD@dpg-creo25bgbbvc73bsh2v0-a.oregon-postgres.render.com/sit722_part3_m72t"
           ports:
             - containerPort: 8000
 
----
-# FastAPI Service
+# bookapi Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: fastapi-service
+  name: bookapi-service
 spec:
   selector:
-    app: fastapi-app
+    app: bookapi-app
   type: LoadBalancer
   ports:
     - protocol: TCP
       port: 80
       targetPort: 8000
-      nodePort: 30001
 
----
 # Inventory Service Deployment
 apiVersion: apps/v1
 kind: Deployment
@@ -59,17 +56,16 @@ spec:
     spec:
       containers:
         - name: inventory-service
-          image: inventory:latest
-          imagePullPolicy: Never
+          image: part3.azurecr.io/inventory:latest
+          imagePullPolicy: Always
           env:
             - name: PORT
               value: "8001"
-            - name: INVENTORY_DATABASE_URL
-              value: "your_inventory_database_url_here"
+            - name: DATABASE_URL
+              value: "postgresql://sit722_part3_m72t_user:p1BTozMBRIrpsdW7BBn8vYNVtlmTbkSD@dpg-creo25bgbbvc73bsh2v0-a.oregon-postgres.render.com/sit722_part3_m72t"
           ports:
             - containerPort: 8001
 
----
 # Inventory Service
 apiVersion: v1
 kind: Service
@@ -83,4 +79,3 @@ spec:
     - protocol: TCP
       port: 81
       targetPort: 8001
-      nodePort: 30002
